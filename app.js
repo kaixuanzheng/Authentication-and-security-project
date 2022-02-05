@@ -34,7 +34,8 @@ mongoose.connect('mongodb://localhost:27017/secretsDB');
 const userSchema = new mongoose.Schema({
   email: String,
   password: String,
-  googleId: String
+  googleId: String,
+  secret: String
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -49,7 +50,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-  User.findById(id, function (err, user) {
+  User.findById(id, function(err, user) {
     done(err, user);
   });
 });
@@ -60,7 +61,6 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:3000/auth/google/secrets"
   },
   function(accessToken, refreshToken, profile, cb) {
-    console.log(profile);
     User.findOrCreate({
       googleId: profile.id
     }, function(err, user) {
@@ -74,11 +74,15 @@ app.get("/", function(req, res) {
 });
 
 app.get('/auth/google',
-  passport.authenticate('google', {scope: ["profile"]})
+  passport.authenticate('google', {
+    scope: ["profile"]
+  })
 );
 
 app.get('/auth/google/secrets',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: '/login'
+  }),
   function(req, res) {
     // Successful authentication, redirect secrets.
     res.redirect('/secrets');
@@ -99,10 +103,41 @@ app.get("/register", function(req, res) {
 
 app.get("/secrets", function(req, res) {
   if (req.isAuthenticated()) {
-    res.render("secrets");
+    User.find({"secret" : {$ne:null}},function(err,foundUsers){
+      if(err){
+        console.log(err);
+      }else{
+        if(foundUsers){
+          res.render("secrets",{userWithSecrets:foundUsers});
+        }
+      }
+    })
   } else {
     res.redirect("/");
   }
+});
+
+app.get("/submit", function(req, res) {
+  if (req.isAuthenticated()) {
+    res.render("submit");
+  } else {
+    res.redirect("/");
+  }
+});
+
+app.post("/submit", function(req, res) {
+  const submitedSecrets = req.body.secret;
+  console.log(req.user.id);
+  User.findById(req.user.id,function(err,foundUser){
+    if(err){
+      console.log(err);
+    }else{
+      foundUser.secret = submitedSecrets;
+      foundUser.save(function(){
+        res.redirect("/secrets");
+      })
+    }
+  });
 });
 
 app.post("/register", function(req, res) {
@@ -135,8 +170,7 @@ app.post("/login", function(req, res) {
       });
     }
   })
-
-})
+});
 
 
 
