@@ -29,7 +29,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect('mongodb://localhost:27017/secretsDB');
+mongoose.connect("mongodb+srv://admin-kai:"+process.env.PASSWORD+"@cluster0.5hblo.mongodb.net/secretsDB?retryWrites=true&w=majority");
 
 const userSchema = new mongoose.Schema({
   email: String,
@@ -177,7 +177,10 @@ app.post("/login", function(req, res) {
 
 
 
-
-app.listen(3000, function() {
-  console.log("Server started on port 3000.");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+app.listen(port, function() {
+  console.log("Server started on port "+port"."");
 })
