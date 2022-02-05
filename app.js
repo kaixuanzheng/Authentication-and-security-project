@@ -127,7 +127,6 @@ app.get("/submit", function(req, res) {
 
 app.post("/submit", function(req, res) {
   const submitedSecrets = req.body.secret;
-  console.log(req.user.id);
   User.findById(req.user.id,function(err,foundUser){
     if(err){
       console.log(err);
@@ -182,5 +181,5 @@ if (port == null || port == "") {
   port = 3000;
 }
 app.listen(port, function() {
-  console.log("Server started on port "+port"."");
+  console.log("Server started on port "+port+".");
 })
