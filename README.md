@@ -6,3 +6,5 @@ In this project I implemented different levels of Authentication as below:
 4) Level 4, Salting and Hashing Passwords with bcrypt.
 5) Level 5, Using Passport.js to add cookies and Sessions.
 6) Level 6, implement sign-in with google by OAuth 2.0.
+
+Deploy my app by Heroku: https://secrets-2022.herokuapp.com/
